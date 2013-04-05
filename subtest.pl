@@ -12,17 +12,24 @@ my @test = &CUT_OUT(\@ar,$te);
 
 
 
-sub CUT_OUT {		# parameter: array for cutting out, what to cut out. returns array where elements have been cut out: ARRAY(reference),ELEMENTS........
+sub CUT_OUT {		# parameters: array for cutting out, what to cut out. returns array where elements have been cut out: ARRAY(reference),ELEMENTS........
 	
 	my @input_array = $_[0];
 	my $deletion = $_[1];
 	my @output_array;	
+	
+#debug
+
+	my $count = @_;
+	print "Laenge: $count\n";
+#/debug
+
 
 	foreach $a (@input_array) {
 		unless ($deletion == $a) {
 			push (@output_array, $a) } 
 	}
 	
-	print "@output_array\n";
+	print "Output array: @output_array\n";
 	return @input_array;
 };

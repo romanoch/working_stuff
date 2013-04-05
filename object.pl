@@ -2,3 +2,5 @@
 
 use strict;
 use warnings;
+
+package state_left;

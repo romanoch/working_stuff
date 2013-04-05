@@ -1,0 +1,5 @@
+Buzz 5
+Woody 10
+Rex 15
+Hamm 20
+Knecht 25

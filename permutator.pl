@@ -11,8 +11,6 @@ use strict;
 use warnings;
 
 my @players = ("wood","buzz","hamm","rex","rom","dummy");
-print "@players\n";
-
 
 PERMUTATE_L (@players);
 

@@ -1,0 +1,10 @@
+left -> right: a and c
+ back: a
+ left -> right: a and b
+ back: a
+ left -> right: f and d
+ back: b
+ left -> right: b and a
+ back: b
+ left -> right: e and b 
+Score: 110

@@ -22,7 +22,7 @@ else{
 }
  
 sub min{
-   my $m = shift;
+   my $m = shift;	#shifts the first element of the @_ array since no other array is explicitly mentioned. (array that automatically stores input parameters)
    return undef unless defined $m;
    for (@_){
       $m = $_ if $m > $_;
