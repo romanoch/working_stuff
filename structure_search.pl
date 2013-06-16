@@ -11,12 +11,12 @@ use List::MoreUtils qw{minmax};
 
 	# Read Input-----------------------------
 	my $filename = shift @ARGV;
-	my ($query_adj, $query_graph) = &READ($filename);	# read query graph grom file
+	my ($query_adj, $query_graph, $query_vertices) = &READ($filename);	# read query graph grom file
 	$filename = shift @ARGV;
 	my ($templ_adj, $templ_graph) = &READ($filename);	# read template graph from file
 
 	# Find Isomorphism(s)--------------------
-	&FIND_ISOM($query_adj, $query_graph, $templ_adj, $templ_graph);
+	&FIND_ISOM($query_adj, $query_graph, $templ_adj, $templ_graph, $query_vertices);
 
 # Subs ---------------------------------------
 sub READ {
@@ -70,13 +70,13 @@ close (FILE);
     $graph_information{@$_[POS]} = [@$_[POS], @$_[ELE], @$_[NUMBONDS], 0 ];		#value: [POS, ELE, NUMBONDS, SEEN]
     }
 
-return (\@adj_matrix, \%graph_information);}
+return (\@adj_matrix, \%graph_information, $nr_vertices);}
 
 
 
 sub FIND_ISOM {
 
-	my ($query_adj, $query_graph, $templ_adj, $templ_graph) = @_;
+	my ($query_adj, $query_graph, $templ_adj, $templ_graph, $query_vertices) = @_;
 	#if (!defined ($query_graph)) {print "hottl"}
 	local ($start_ID_query, $start_ELE) = &FIND_START($query_graph);
 	my @template_start;
@@ -90,15 +90,27 @@ sub FIND_ISOM {
 	if (!defined(@template_start)) {die "An Element of the Query graph can't be found in the template!"}
 
 	
-	&SOLVE( \@template_start, $query_adj, $query_graph, $templ_adj, $templ_graph);
+	&SOLVE( \@template_start, $query_adj, $query_graph, $templ_adj, $templ_graph, $query_vertices);
 }
 
 sub SOLVE {
 
-  my ($start_ID_query, $template_start, $query_adj, $query_graph, $templ_adj, $templ_graph) = @_;
-     #	scalar		array		AoA		hash[]	   AoA		hash[]
+  my ($start_ID_query, $template_start, $query_adj, $query_graph, $templ_adj, $templ_graph, $query_vertices) = @_;
+     #	scalar			array			AoA			hash[]	   		AoA			hash[]		scalar
+	
+		#nachbarn des starts initialisieren
+	
+	unless ( $query_vertices == 0) {
+	
+	
+	
+		}
+	
 
-  
+}
+
+sub WALK_GRAPH {
+
 
 
 }
