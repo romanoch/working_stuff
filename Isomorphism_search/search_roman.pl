@@ -7,7 +7,7 @@ use Getopt::Long;
 
 my $file_target;
 my $file_query;
-my $depth;
+my @vertices_left;
 
 GetOptions ( "t=s" => \$file_target, "q=s" => \$file_query );
 
@@ -19,10 +19,13 @@ my ($target_matrix,
 my ($query_matrix,
 	$query_vertices_nr,
 	$query_degree) = &READ($file_query);	#read query graph
-
-	$depth = 1;
-	for ($depth..$target_vertices_nr) {	
-		&SOLVE($depth)
+	
+	for (1..$target_vertices_nr) {			#fill array with all vertex IDs
+		push (@vertices_left, $_);
+		}
+		
+	for ( 1..scalar(@vertices_left) ) {	
+		&SOLVE( \@vertices_left );
 	}
 	
 # Subs ---------------------------------------
@@ -78,8 +81,29 @@ return $adj_matrix, $nr_vertices, \%graph}
 
 sub SOLVE {
 
-	my ($depth,
-	$depth++;
-
+	my ($vert, $hist) = @_;
+	my @vertices_left = @{$vert};
+	my @history = @{$hist};
+	
+	if (scalar(@vertices_left) == 1) {
+		&CHECK_GRAPH();
+		}
+	
+	for ( 1..scalar(@vertices_left) ) {
+	
+		my $current_ID = shift (@vertices_left);
+		
+		
+		
+		
+		
+		
+		
+		&SOLVE(\@vertices_left, \@history );		# continue with array shortened by 1
+		
+		push (@vertices_left, $current_ID);			# append element to the end of the array
+		
+	}
+	
 
 }
