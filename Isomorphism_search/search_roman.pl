@@ -13,11 +13,11 @@ GetOptions ( "t=s" => \$file_target, "q=s" => \$file_query );
 
 # Main ---------------------------------------
 my ($target_matrix,
-$target_vertices_nr,
-$target_degree) = &READ($file_target);	#read target graph
+    $target_vertices_nr,
+    $target_degree) = &READ($file_target);	#read target graph
 my ($query_matrix,
-$query_vertices_nr,
-$query_degree) = &READ($file_query);	#read query graph
+    $query_vertices_nr,
+    $query_degree) = &READ($file_query);	#read query graph
 
 &SOLVE()
 
