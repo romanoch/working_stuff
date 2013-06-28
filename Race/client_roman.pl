@@ -5,7 +5,8 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 
-require INOUT;
+require MODULES::INOUT;
+#require MODULES::movement;
 
 #################################
 #	Options Section		#
@@ -38,26 +39,29 @@ if (!$s2p_path) {
 #################################
 
 #read map
-my $map = &READ_TRACK($map_path);			#returns a 2D Array (x,y)
+my $map = &INOUT::READ_TRACK( $map_path);			#returns a 2D Array (x,y)
 #read serv2play-file
 my ($mypos,		#Array (x,y)
     $myvec,		#Array (x,y)
     $nextcheck,		#Scalar
     $nrplayers,		#Scalar
     $coorplayers) 	#AoA
-    = &READ_S2P($s2p_path);
+    = &INOUT::READ_S2P( $s2p_path);
 #read checkpoint-file  
-my $checkpoints = &READ_CHECKPOINTS($check_path);	#Array (ID, x, y)
-
-my $nextpos = &NEXTPOS($mypos,$myvec,$nextcheck);
-
-&WRITE_P2S($nextpos);
+my $checkpoints = &INOUT::READ_CHECKPOINTS( $check_path);	#Array (ID, x, y)
+#calculate next position
+my $nextpos = &NEXTPOS( $mypos,$myvec,$nextcheck);
+#write output file
+&INOUT::WRITE_P2S( $p2s_path, $nextpos) or die "Couldn't write play2serv!";
 
 
 #########################################
 #		SUBS			#
 #########################################
 
+sub NEXTPOS {
+
+}
 
 
 
@@ -89,4 +93,4 @@ my $nextpos = &NEXTPOS($mypos,$myvec,$nextcheck);
 
 
 
-
+print "Stechus Kaktus\n";

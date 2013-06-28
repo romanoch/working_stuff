@@ -3,14 +3,6 @@ package INOUT;
 use strict;
 use warnings;
 
-# read track
-#my $track; 	# two-dimensional array containing the racing track	
-#my $path_track;	#path of the mapfile
-#my $s2p;
-#my $path_s2p;
-#$track = READ_TRACK($path_track);
-
-
 #################################################
 #			SUBS			#
 #################################################
@@ -21,15 +13,18 @@ sub READ_TRACK {
 	my @track;				#2D-Array
 	my @track_parameters;
 	my $line = 1;
-
-	while (<$path>){
+	
+	open (TRACK, "<", $path) or
+	  die "Couldn't open $path\n";
+	while (<TRACK>){
 		if ($line == 1){
 			push @track_parameters, [split(/\s+/, $_)];
 			$line++;
 			}
 		push @track, [split(//, $_)];
 		}
-
+	close (TRACK);
+	
 	return \@track;
 }
 
@@ -42,8 +37,10 @@ sub READ_S2P {
 	my $nextcheck;
 	my $players;
 	my @players;
-
-	while (<$path>){
+	
+	open (S2P, "<", $path) or 
+	  die "Couldn't open $path\n";
+	while (<S2P>){
 		chomp $_;
 		if ( $_ =~ /^#*/ ) { next }
 			
@@ -59,6 +56,7 @@ sub READ_S2P {
 			push( @players, [split(/s+/, $_)])}
 		$linenr++;
 		}
+	close (S2P);
 return \@mypos, \@myvec, $nextcheck, $players, \@players;
 }
 
@@ -67,12 +65,14 @@ sub READ_CHECKPOINTS {
 	my $path = shift @_;
 	my @checkpoints;				#2D-Array
 
-
-	while (<$path>){
+	open (CHECK, "<", $path) or
+	  die "Couldn't open $path\n";
+	while (<CHECK>){
 		if ($_ =~ /^#/){ 
 			next}
 		push (@checkpoints, [split(/\s+/, $_)]);
 		}
+	close (CHECK);
 return \@checkpoints;
 }
 
@@ -80,13 +80,16 @@ sub WRITE_P2S {
 	
 	my $path = shift @_;
 	my $coor = shift @_;
-
-	open (OUT, ">", $path);
+	
+	if (!$coor) {return 0}
+	
+	open (OUT, ">", $path) or
+	  die "Couldn't open $path\n";
 	print OUT "@{$coor}[0]", " ", "@{$coor}[1]";
 	close (OUT);
 
 return 1;
 }
 
-
+1; #is needed that the module can be loaded correctly
 
