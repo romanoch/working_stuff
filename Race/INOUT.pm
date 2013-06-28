@@ -4,19 +4,16 @@ use strict;
 use warnings;
 
 # read track
-my $track; 	# two-dimensional array containing the racing track	
-my $path_track;	#path of the mapfile
-my $s2p;
-my $path_s2p;
-
-	#$track = READ_TRACK($path_track);
-	
+#my $track; 	# two-dimensional array containing the racing track	
+#my $path_track;	#path of the mapfile
+#my $s2p;
+#my $path_s2p;
+#$track = READ_TRACK($path_track);
 
 
-
-#############################################
-#					SUBS					#
-#############################################
+#################################################
+#			SUBS			#
+#################################################
 
 sub READ_TRACK {
 
@@ -76,7 +73,6 @@ sub READ_CHECKPOINTS {
 			next}
 		push (@checkpoints, [split(/\s+/, $_)]);
 		}
-	}
 return \@checkpoints;
 }
 
@@ -88,6 +84,8 @@ sub WRITE_P2S {
 	open (OUT, ">", $path);
 	print OUT "@{$coor}[0]", " ", "@{$coor}[1]";
 	close (OUT);
+
+return 1;
 }
 
 
