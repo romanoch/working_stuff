@@ -67,9 +67,15 @@ sub NEXTPOS {
       $nextcheck,
       $mode) 
       = @_;
-
-if ($mode eq "greedy") {
-  return &movement::greedy_simple( $mypos, $myvec, $nextcheck, $checkpoints);
+      
+if ($mode eq "random") {
+  return &movement::random_walk ( $mypos, $myvec);
+  }
+elsif ($mode eq "greedy") {
+  return &movement::greedy_simple ( $mypos, $myvec, $nextcheck, $checkpoints);
+  }
+elsif ($mode eq "greedy_refined") {
+  return 0;
   }
   
 }
