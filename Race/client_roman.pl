@@ -4,19 +4,21 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Pod::Usage;
+use Data::Dumper;
 
 require MODULES::INOUT;
 require MODULES::movement;
 
-#################################
-#	Options Section		#
-#################################
+#########################################
+#		Options Section		#
+#########################################
 
 my $map_path = "";
 my $p2s_path = "";
 my $check_path = "";
 my $s2p_path = "";
 my $mode = "";
+#my $mem_path = "memory.txt";
 
 GetOptions(
 	"map=s" => \$map_path,
@@ -40,7 +42,13 @@ if (!$s2p_path) {
 #########################################
 
 #read map
-my $map = &INOUT::READ_TRACK( $map_path);			#returns a 2D Array (x,y)
+my ($map,					# 2D Array (x,y)
+   $checksum)					# scalar
+   = &INOUT::READ_TRACK( $map_path);
+   
+#load memory
+#my $memory = &INOUT::READ_MEMORY( $mem_path, $checksum) or &INIT_MEMORY();
+  
 #read serv2play-file
 my ($mypos,		#Array (x,y)
     $myvec,		#Array (x,y)
@@ -48,12 +56,15 @@ my ($mypos,		#Array (x,y)
     $nrplayers,		#Scalar
     $coorplayers) 	#AoA
     = &INOUT::READ_S2P( $s2p_path);
+
 #read checkpoint-file  
 my $checkpoints = &INOUT::READ_CHECKPOINTS( $check_path);	#Array (ID, x, y)
+#print Dumper($checkpoints); is ok
 #calculate next position
-my $nextpos = &NEXTPOS( $mypos,$myvec,$nextcheck,$mode);
+my $nextpos = &NEXTPOS( $mypos,$myvec,$nextcheck,$map,$mode);
+# here is something wrong
 #write output file
-&INOUT::WRITE_P2S( $p2s_path, $nextpos) or die "Couldn't write play2serv!";
+&INOUT::WRITE_P2S( $p2s_path, $nextpos) or die "No Coordinates given. Couldn't write play2serv!";
 
 
 #########################################
@@ -65,21 +76,28 @@ sub NEXTPOS {
   my ($mypos,
       $myvec,
       $nextcheck,
+      $map,
       $mode) 
       = @_;
       
-if ($mode eq "random") {
-  return &movement::random_walk ( $mypos, $myvec);
-  }
-elsif ($mode eq "greedy") {
+if (!$mode) {
   return &movement::greedy_simple ( $mypos, $myvec, $nextcheck, $checkpoints);
   }
-elsif ($mode eq "greedy_refined") {
-  return 0;
+elsif ($mode eq "random") {
+  return &movement::random_walk ( $mypos, $myvec);
   }
+# elsif ($mode eq "greedy") {
+#   return &movement::greedy_simple ( $mypos, $myvec, $nextcheck, $checkpoints);
+#   }
+# elsif ($mode eq "greedy_refined") {
+#   return &movement::greedy_simple ( $mypos, $myvec, $nextcheck, $checkpoints, $map) ;
+#   }
   
 }
 
+# sub INIT_MEMORY {
+# 
+# }
 
 
 

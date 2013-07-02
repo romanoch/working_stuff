@@ -13,19 +13,55 @@ sub READ_TRACK {
 	my @track;				#2D-Array
 	my @track_parameters;
 	my $line = 1;
+	my $checksum = 0;
 	
 	open (TRACK, "<", $path) or
 	  die "Couldn't open $path\n";
 	while (<TRACK>){
 		if ($line == 1){
-			push @track_parameters, [split(/\s+/, $_)];
+			@track_parameters = split(/\s+/, $_);
 			$line++;
+			next;
 			}
 		push @track, [split(//, $_)];
 		}
 	close (TRACK);
 	
-	return \@track;
+	foreach my $ele (@track) {
+	  foreach (@{$ele}){
+	    if ($_ eq "#"){ $checksum += 1}
+	    elsif ($_ eq ".") { $checksum += 2}
+	    elsif ($_ eq "v") { $checksum += 3}
+	  }
+	}
+	
+	return \@track, $checksum;
+}
+
+sub READ_MEMORY {
+
+  my $path = shift;
+  my $checksum = shift;
+  my $line = 0;
+  my %states;
+  
+  open (MEMO, "<", $path) or print "No memory found. Create new one."; return 0;
+  while (<MEMO>){
+    chomp $_;
+    
+      if ($line == 0) {
+	if ($_ != $checksum) {
+	  close MEMO;
+	  print "Memory doesn't match track. Creating new one.\n";
+	  return 0;
+	  }
+	$line++;
+      }
+   
+    # read actual memory
+    
+    
+   }  
 }
 
 sub READ_S2P {
@@ -42,7 +78,7 @@ sub READ_S2P {
 	  die "Couldn't open $path\n";
 	while (<S2P>){
 		chomp $_;
-		if ( $_ =~ /^#*/ ) { next }
+		if ( $_ =~ /#/ ) { next }
 			
 		if ($linenr == 1){
 			@mypos = split( /\s+/, $_)}
@@ -57,6 +93,8 @@ sub READ_S2P {
 		$linenr++;
 		}
 	close (S2P);
+	#print @mypos,"\n", @myvec,"\n", $nextcheck,"\n", $players,"\n";#, \@players;
+	#print $mypos[1];
 return \@mypos, \@myvec, $nextcheck, $players, \@players;
 }
 
@@ -82,6 +120,7 @@ sub WRITE_P2S {
 	my $coor = shift @_;
 	
 	if (!$coor) {return 0}
+	#print @{$coor};
 	
 	open (OUT, ">", $path) or
 	  die "Couldn't open $path\n";

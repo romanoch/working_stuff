@@ -1,0 +1,4 @@
+#No comments allowed, format has to strictly follow the template:
+#
+CHECKSUM
+CHECKPOINT_NUMBER#WHITESPACE#STATE	#each checkpoint gets its own line

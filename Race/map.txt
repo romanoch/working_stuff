@@ -1,1 +1,25 @@
-test
+80 24
+################################################################################
+#vvvvvvvvvvv......vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
+#vvvvvvvv...........vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
+#vvvvvvv..............vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv.................vvvvvvvv#
+#vvvvvv................vvvvvvvvvvvvvvvvvvvvvvvvvvvvv.......................vvvv#
+#vvvvv..................vvvvvvvvvvvvvvvvvvvvvvvvv...........................vvv#
+#vvvvv.....vvvvvv........vvvvvvvvvvvvvvvvvvvvvv............vvvvvvvvv........vvv#
+#vvvvv....vvvvvvvvvv......vvvvvvvvvvvvvvvvvvv..........vvvvvvvvvvvvvvvvv....vvv#
+#vvvvv....vvvvvvvvvvvv......vvvvvvvvvvvvvvv.........vvvvvvvvvvvvvvvvvvvvv...vvv#
+#vvvvv....vvvvvvvvvvvvv........vvvvvvvvvv.........vvvvvvvvvvvvvvvvvvvvvvv...vvv#
+#vvvvv.....vvvvvvvvvvvvv.........vvvvv..........vvvvvvvvvvvvvvvvvvvvvvvvv...vvv#
+#vvvvv......vvvvvvvvvvvvvv....................vvvvvvvvvvvvvvvvvvvvvvvvvv....vvv#
+#vvvvv.......vvvvvvvvvvvvvvvv...............vvvvvvvvvvvvvvvvvvvvvvvvvv......vvv#
+#vvvvvv......vvvvvvvvvvvvvvvvvv..........vvvvvvvvvvvvvvvvvvvvvvvvvvvv.......vvv#
+#vvvvvvvv......vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv........vvvv#
+#vvvvvvvvv........vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv........vvvvvv#
+#vvvvvvvvv.............vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv..........vvvvvvv#
+#vvvvvvvvvvv...............vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv............vvvvvvvvv#
+#vvvvvvvvvvvvvv....................vvvvvv...........................vvvvvvvvvvv#
+#vvvvvvvvvvvvvvvvvvv.............................................vvvvvvvvvvvvvv#
+#vvvvvvvvvvvvvvvvvvvvvvv.....................................vvvvvvvvvvvvvvvvvv#
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv............vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
+################################################################################
