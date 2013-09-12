@@ -28,13 +28,13 @@ GetOptions(
 	"mode=s" => \$mode);
 
 if (!$map_path){
-  $map_path = "map.txt";}
+  $map_path = "../map.txt";}
 if (!$p2s_path){
-  $p2s_path = "play2serv.txt";}
+  $p2s_path = "../play2serv.txt";}
 if (!$check_path){
-  $check_path = "checkpoints.txt";}
+  $check_path = "../checkpoints.txt";}
 if (!$s2p_path) {
-  $s2p_path = "serv2play.txt";}
+  $s2p_path = "../serv2play.txt";}
 
 
 #########################################
@@ -59,10 +59,8 @@ my ($mypos,		#Array (x,y)
 
 #read checkpoint-file  
 my $checkpoints = &INOUT::READ_CHECKPOINTS( $check_path);	#Array (ID, x, y)
-#print Dumper($checkpoints); is ok
 #calculate next position
 my $nextpos = &NEXTPOS( $mypos,$myvec,$nextcheck,$map,$mode);
-# here is something wrong
 #write output file
 &INOUT::WRITE_P2S( $p2s_path, $nextpos) or die "No Coordinates given. Couldn't write play2serv!";
 
@@ -86,13 +84,12 @@ if (!$mode) {
 elsif ($mode eq "random") {
   return &movement::random_walk ( $mypos, $myvec);
   }
-# elsif ($mode eq "greedy") {
-#   return &movement::greedy_simple ( $mypos, $myvec, $nextcheck, $checkpoints);
-#   }
 # elsif ($mode eq "greedy_refined") {
 #   return &movement::greedy_simple ( $mypos, $myvec, $nextcheck, $checkpoints, $map) ;
 #   }
-  
+else {
+  return &movement::greedy_simple ( $mypos, $myvec, $nextcheck, $checkpoints);
+  }
 }
 
 # sub INIT_MEMORY {
@@ -128,4 +125,4 @@ elsif ($mode eq "random") {
 
 
 
-print "Stechus Kaktus\n";
+print "################\n#Stechus Kaktus#\n################\n";

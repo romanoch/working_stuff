@@ -1,0 +1,303 @@
+package Modules::Parse_RDAT;
+
+use strict;
+use warnings;
+use Data::Dumper;
+use RNA;
+
+
+sub read_RDAT {
+
+  my $path = shift @_;
+  my $verbose = shift @_;
+  my %self;
+  my $rdat_version = 0.32;
+  my $logfile = "logfile.log";
+  
+  $self{"PATH"} = $path;
+  
+#   open (LOG, ">", $logfile);
+#   print LOG "LOGFILE\n";
+#   close LOG;
+  
+#   open (LOG, ">>", $logfile) or die "Could not open/create file $logfile!";
+  open (FI, "<", $path) or die "Could not open file $path!";  
+  while (<FI>) {
+    
+    chomp $_;
+    $_ or next;
+    
+    my @line = split(/\s+/, $_);
+    my $ID = shift @line;		#first element in a line identifies the data
+    
+    
+    if ( $ID eq "RDAT_VERSION" ) {
+	$self{$ID} = join("", @line)}   #scalar
+
+    elsif ( $ID eq "NAME") {
+	$self{$ID} = join("", @line)}   #scalar
+
+    elsif ( $ID eq "SEQUENCE") {
+	$self{$ID} = join("", @line)}	#string
+
+    elsif ( $ID eq "STRUCTURE") {
+	$self{$ID} = join("", @line)	#string
+	$self{"STRUCTURE_DESCRIPTION"} = db2sd($self{$ID}) }	#array reference
+
+    elsif ( $ID eq "OFFSET") {
+	$self{$ID} = join("", @line)}	#scalar
+
+    elsif ( $ID eq "SEQPOS") {
+	$self{$ID} = \@line}		#array
+
+    elsif ( $ID eq "ANNOTATION") {
+	$self{$ID} = \@line}		#array, this needs special treatment since it can hold a large amount of information
+	
+    elsif ( $ID eq "COMMENT") {
+	$self{$ID} = join(" ",@line)}	#string
+	
+    elsif ( $ID eq "XSEL") {
+	$self{$ID} = \@line}		#array
+	
+    elsif ( $ID eq "MUTPOS") {
+	$self{$ID} = \@line}		#array
+	
+    #here i use regexes because the data comes actually in the format BLABLA:1 .. BLABLA:n
+    elsif ( $ID =~ "ANNOTATION_DATA") {	
+	$self{$ID} = \@line}		#array
+	
+    elsif ( $ID =~ "REACTIVITY_ERROR") {
+	$self{$ID} = \@line}		#array
+	
+    elsif ( $ID =~ "REACTIVITY") {
+	$self{$ID} = \@line;
+	$self{"REACTIVITY_NORM"} = normalize_heur($self{$ID});}
+	################################## normalize here!!!!!		#array
+	    
+    elsif ( $ID =~ "XSEL_REFINE") {
+	$self{$ID} = \@line}		#array
+	
+    elsif ( $ID =~ "SEQPOS") {
+	$self{$ID} = \@line}		#array
+	
+    elsif ( $ID =~ "TRACE") {
+	$self{$ID} = \@line}		#array	
+	
+    elsif ( $ID eq "READS") {
+	$self{$ID} = \@line}		#array
+	
+    else { 
+	print  "File $path :", " Could not process ID $ID!\n" if ($verbose >= 1) }
+  } 
+ close (FI); 
+ 
+#sort out files that lack the crucial sections STRUCTURE, SEQUENCE or REACTIVITY
+ if ( !defined($self{"STRUCTURE"}) ) {
+  print "File $path was omitted due to missing STRUCTURE\n";
+  return 0}
+  
+ elsif ( !defined($self{"SEQUENCE"}) ) {
+  print "File $path was omitted due to missing SEQUENCE\n";
+  return 0}
+  
+ elsif ( !defined($self{"REACTIVITY"}) && !defined($self{"REACTIVITY:1"}) ) {
+  print "File $path was omitted due to missing REACTIVITY\n";
+  return 0}
+ 
+ elsif ( !defined($self{"NAME"}) ) {
+  print "File $path was omitted due to missing NAME\n";
+  return 0}
+  
+ elsif ( !defined($self{"RDAT_VERSION"}) ) {
+  print "File $path was omitted due to missing RDAT_VERSION\n";
+  return 0}
+
+#warn if version formats are not the same
+  if ($verbose == 1) {
+  
+    if ($self{"RDAT_VERSION"} != $rdat_version  &&  $self{"RDAT_VERSION"} > $rdat_version) {
+      print "Warning: $path uses newer Version of the RDAT-Format! (", $self{"RDAT_VERSION"}, ")\n";
+      }
+    else {
+      print "Warning: $path uses older Version of the RDAT-Format! (", $self{"RDAT_VERSION"},")\n";
+      }     
+  }
+ 
+ # count the number of experiments in this file
+  my $i =1;
+  while ( defined($self{"REACTIVITY:"."$i"}) ) {
+    $self{"EXPERIMENTS"}++;
+    $i++;
+    }
+    
+#normalize the reactivities (if this wasn't already done) missing: include check whether data is already normalized
+  #print "Nr of experiments: ",$self{"EXPERIMENTS"},"\n";
+ 
+#   for my $i ( 1 .. $self{"EXPERIMENTS"} ) {
+#     $self{"REACTIVITY:"."$i"} = normalize_heur($self{"REACTIVITY:"."$i"});
+#     last; #stop after first experiment, will deal later with larger amounts of experiments
+#     }
+
+# create a hash where the base positions are the keys and the values are the corresponding reactivities
+  #hier ist arbeit zu tun, die parsing
+  $self{"REAC_DATA"} = correlate_reac (\$self);
+
+return \%self; 
+}
+
+
+sub normalize_heur {
+  #heuristic approach as described in Paper Low & Weeks 2010
+  #remove top 2%, take average of next 8%, every value by this
+  #Normalization method: Define Average Reactivity of top 10% as 1.0
+  # i know this is programmed like kraut and rueben
+  
+  my $reac = shift @_;	#holds reference
+  my @reac = @{$reac};
+    
+  my @reac_sorted = sort {$b <=> $a} @{$reac};  
+  my $size = @{$reac};
+
+  my @top2;
+  my $top2 = int(($size / 100) * 2);
+  $top2 = 2 if ($top2 < 2);
+  
+  my @top8; 
+  my $top8 = int(($size / 100) * 8);
+  $top8 = 1 if ($top8 < 1);
+
+  #remove top 2%
+  for (1 .. $top2) {
+    push @top2, (shift @reac_sorted);
+    }
+    
+  #find top 8%
+  for (0 .. $top8) {
+    push @top8, (shift @reac_sorted);   
+    }
+
+  #average top 8
+  my $avg;
+  foreach (@top8) {
+    $avg += $_;
+    }
+  $avg /= $top8;
+  
+  foreach my $str (@top2) {
+    INNER:for (0 .. $size-1) {
+	if ( @{$reac}[$_] == $str )
+	  { @{$reac}[$_] = 0; last INNER; }
+      }
+  }
+  
+  for (0 .. $size-1) {
+    @{$reac}[$_] /= $avg;
+    }
+  
+ return $reac;
+}
+
+
+sub db2sd {
+
+my (@structures) = @_;
+my @structure_description = ();
+foreach (@structures) {
+        
+    my @db = split('', $_);
+    my @dots = (-1);
+    my @opening_br = (-1);
+
+    # at first we expect every nucleotide to be unpaired "U"
+    my @struc_dec = ("U") x length($_);
+
+    # fill arrays with positions
+    for (my $i = 0; $i < scalar(@db); $i++) {
+        push(@dots, $i) if ( $db[$i] eq "." );
+        push(@opening_br, $i) if ( $db[$i] eq "(" );
+
+        # closing bracket found, so lets classify enclosed unpaired nucleotides
+        # if there are any
+        # if clause leads to errors, if @db contains substrings like "()"
+        if ( $db[$i] eq ")" && $dots[$#dots] > $opening_br[$#opening_br] ) {
+
+            # declare enclosing bracket positions
+            my $op_br_pos = pop(@opening_br);
+            my $cl_br_pos = $i;
+
+            # Declare paired nucleotides
+            $struc_dec[$op_br_pos] = "P";
+            $struc_dec[$cl_br_pos] = "P";
+
+
+            my @enclosed_dots = ();
+            # count the number of stems enclosed by the unpaired nucleotides
+            my $enclosed_stems = 0;
+
+            # collect all enclosed nucleotides in @enclosed_dots
+            while ( $dots[$#dots] > $op_br_pos ) {
+                push(@enclosed_dots, pop(@dots));
+                # stop if you reached the last enclosed nucleotide
+                last if ($dots[$#dots] < $op_br_pos);
+                # if found non-continous numbers we found an enclosed stem
+                if ( $dots[$#dots]+1 < $enclosed_dots[$#enclosed_dots]) {
+                    $enclosed_stems++;
+                }
+            }
+#           print("Enclosed unpaired nucleotides: "                    .join(",", @enclosed_dots)."\n");
+
+            # Hairpin or bulge detected
+            if ( $enclosed_stems == 0 ) {
+                # Hairpin detected if the enclosed dots reach from opening to
+                # closing bracket
+                if ($op_br_pos + 1 == $enclosed_dots[$#enclosed_dots] &&
+                    $cl_br_pos - 1 == $enclosed_dots[0] ) {            
+                    foreach (@enclosed_dots) { $struc_dec[$_] = "H" }
+#                    print("Hairpin found.\n");
+                }
+                # bulge detected if the enclosed dots just touch one bracket
+                elsif ( $op_br_pos + 1 == $enclosed_dots[$#enclosed_dots] ||
+                        $cl_br_pos - 1 == $enclosed_dots[0] ) {
+                    foreach (@enclosed_dots) { $struc_dec[$_] = "B" }
+#                    print("Bulge found.\n");
+                }
+            }
+            # Multi loop with two included stems or an interior loop detected
+            elsif ( $enclosed_stems == 1 ) {
+                # Interior loop detected if the enclosed dots reach from opening
+                # to closing bracket
+                if ($op_br_pos + 1 == $enclosed_dots[$#enclosed_dots] &&
+                    $cl_br_pos - 1 == $enclosed_dots[0] ) {
+                    foreach (@enclosed_dots) { $struc_dec[$_] = "I" }
+#                    print("Interior loop found.\n");
+                }
+                # Multi loop with two stems detected if the enclosed dots just
+                # touch one bracket
+                elsif ( $op_br_pos + 1 == $enclosed_dots[$#enclosed_dots] ||
+                        $cl_br_pos - 1 == $enclosed_dots[0] ) {
+                    foreach (@enclosed_dots) { $struc_dec[$_] = "M" }
+#                    print("Multi loop found.\n");
+                }
+            }
+            # Multi loop detected if more than one stem is enclosed
+            elsif( $enclosed_stems > 1 ) {
+                    foreach (@enclosed_dots) { $struc_dec[$_] = "M" }
+#                    print("Multi loop found.\n");
+            }
+        }
+        # No enclosed unpaired nucleotides so lets declare the base pair
+        elsif ( $db[$i] eq ")" ) {
+            $struc_dec[$i] = "P";
+            my $rel_open_br = pop(@opening_br);
+            $struc_dec[$rel_open_br] = "P";
+        }
+    }
+    my $str_desc = join("",@struc_dec);
+#    print("$_\n$str_desc\n");
+    #push(@structure_description, join("",@struc_dec));	#original version
+    push(@structure_description, @struc_dec);
+}
+return \@structure_description;
+
+}
+1;

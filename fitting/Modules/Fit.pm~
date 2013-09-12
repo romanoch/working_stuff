@@ -1,0 +1,68 @@
+package Modules::Fit;
+
+use strict;
+use warnings;
+use Data::Dumper;
+use Carp;
+
+my $verbose;
+
+sub search_main {
+  
+  $verbose = shift @_;
+  my $data_ref = shift @_;
+  my $frame = shift @_;
+  my @Probing_profiles = @{$data_ref};
+  my %motifs;
+  #for output purposes
+  my $curr = 0;
+  my $progress;
+  
+  foreach (@Probing_profiles) {
+    my @profile = @{$_};
+
+    for (my $i = 0; $i <= $#profile; $i++) {
+      my %profile = %{$profile[$i]};
+      
+      if (!defined($profile{"REACTIVITY"})) {
+	next};
+      if ($profile{"REACTIVITY"} >= 0.7  &&  $profile{"REACTIVITY"} <= 5.0) {
+	
+	my @string;
+	for my $j ($i-$frame .. $i+$frame){
+	  if ($j >= 0  &&  $j <= $#profile) {
+	  my %temp = %{$profile[$j]};
+	  if (defined($temp{"STRUCTURE_DESC"})) {
+	  push @string, $temp{"STRUCTURE_DESC"}; } else {last}
+	  }
+	  else {last}
+	}
+	$motifs{join('', @string)}++;
+      }
+    }
+    
+
+  }
+  foreach my $value (sort { $motifs{$b} <=> $motifs{$a} } keys %motifs) {
+    print "$value $motifs{$value}\n";
+    }
+
+  
+}
+
+
+  #update console, show progress
+#   $curr++;
+#   $progress = ($curr / $#Probing_profiles);
+#   
+#   print "\r",($progress*100),"% done!";
+
+
+sub fit_main {
+
+
+
+
+}
+
+1;

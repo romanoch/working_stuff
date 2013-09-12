@@ -2,7 +2,7 @@ package movement;
 
 use strict;
 use warnings;
-
+use Data::Dumper;
 
 #################################
 #		SUBS		#
@@ -38,17 +38,20 @@ sub greedy_simple {
   $new_pos[0] = @{$mypos}[0] + @{$myvec}[0];
   $new_pos[1] = @{$mypos}[1] + @{$myvec}[1];
   
-  my @next_checkpoint = @{$checkpoints}[$nextcheck];	# [0]: ID, [1]: x, [2]: y
+  my $next_checkpoint = @{$checkpoints}[$nextcheck];	# [0]: ID, [1]: x, [2]: y
+  shift @{$next_checkpoint}; #get rid of ID
+  
   my %next_positions;
   my %dist_next_position;
+
   
   for my $i (1..9) {	#generate possible positions
-    $next_positions{$i} = &possible_positions (\@new_pos, $_) ;
-    $dist_next_position{$i} = &calc_distance ($next_positions{$i}, \@next_checkpoint);
+    $next_positions{$i} = &possible_positions (\@new_pos, $i) ;
+    $dist_next_position{$i} = &calc_distance ($next_positions{$i}, $next_checkpoint);
     }
     # this is not optimal and should be coded properly
-    my $comp = 9999999999;
-    my $ID;
+  my $comp = 9999999999;
+  my $ID;
   foreach (keys %dist_next_position) {	#take the closest position
     if ($dist_next_position{$_} < $comp) {
       $comp = $dist_next_position{$_};
@@ -61,17 +64,17 @@ return $next_positions{$ID};
 
 
 sub greedy_refined {
-# 
-#   my ($mypos,		# Array (x,y)
-#       $myvec,		# Array (x,y)
-#       $nextcheck,	# scalar
-#       $checkpoints,	# AoA (ID, x,y)
-#       $map)		# AoA (x,y)
-#       = @_;
-# 
-#       
-#       
-#       
+
+  my ($mypos,		# Array (x,y)
+      $myvec,		# Array (x,y)
+      $nextcheck,	# scalar
+      $checkpoints,	# AoA (ID, x,y)
+      $map)		# AoA (x,y)
+      = @_;
+
+      
+      
+      
 }
 
 #################################
@@ -119,7 +122,7 @@ sub possible_positions {
       @{$pos}[0]++;}	#increase x
   }
 
-return $pos;
+return $pos;		# (x,y)
 }  
 
 sub calc_distance {
@@ -144,10 +147,80 @@ sub calc_distance {
   return $distance;
 }
 
+sub bresenham {
+  
+  #returns the coordinates of the pixels which are covered by the vector
+  my ($coor_start, $coor_end) = @_;
+  my @pixels;
+  
+  my $dx = @{$coor_end}[0] - @{$coor_start}[0];
+  my $dy = @{$coor_end}[1] - @{$coor_start}[1];
+  my $error = ($dx/2);
+  
+  #initialize
+  my $x = @{$coor_start}[0];
+  my $y = @{$coor_start}[1];
+  
+  if ($dy > 0){	#positive steigung
+    if ($dx > $dy) {
+    
+    while ($x < @{$coor_end}[0]) {
+      
+      $x++;
+      push @pixels, [$x,$y];
+      $error -= $dy;
+            
+      if ($error < 0) {
+	$y++;
+	push @pixels, [$x, $y];}
+    }
+  }
+    elsif ($dy >= $dx) {
+    while ($y < @{$coor_end}[1]) {
+      $y++;
+      push @pixels, [$x,$y];
+      $error -= $dx;
+            
+      if ($error < 0) {
+	$x++;
+	push @pixels, [$x, $y];}
+    }
+  }
+  }
+  if ($dy <= 0) {	#negative steigung
+    if ($dx > $dy) {
+      
+      while ($x > @{$coor_end}[0]) {
+      
+	$x--;
+	push @pixels, [$x,$y];
+	$error -= $dy;
+            
+	if ($error < 0) {
+	  $y++;
+	  push @pixels, [$x, $y];}
+      }
+    }
+    elsif ($dy >= $dx) {
+    
+         while ($y < @{$coor_end}[0]) {
+      
+	$y++;
+	push @pixels, [$x,$y];
+	$error -= $dx;
+            
+	if ($error < 0) {
+	  $x--;
+	  push @pixels, [$x, $y];}
+      }   
+      
+      }
 
-# sub bresenham_algorithm {
-# 
-# }
+  }
 
- 
+    
+    
+    
+return \@pixels;
+}
 1;

@@ -40,6 +40,9 @@ sub READ_TRACK {
 
 sub READ_MEMORY {
 
+  # structure of a memory is checksum in the first line,
+  # and in each following line <NEXTCHECK> whitespace <STATE>
+  
   my $path = shift;
   my $checksum = shift;
   my $line = 0;
@@ -57,11 +60,10 @@ sub READ_MEMORY {
 	  }
 	$line++;
       }
-   
-    # read actual memory
-    
-    
-   }  
+   my @line = split;
+   $states{$line[0]} = $line[1];
+   }
+  return \%states;
 }
 
 sub READ_S2P {
@@ -130,5 +132,5 @@ sub WRITE_P2S {
 return 1;
 }
 
-1; #is needed that the module can be loaded correctly
+1;
 
